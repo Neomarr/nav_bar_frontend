@@ -1,0 +1,100 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Classic Chess Set",
+      "category": "Board Games",
+      "price": 49.99,
+      "image": "chess-set.jpg",
+      "description": "Professional grade wooden chess set with felt base"
+    },
+    {
+      "id": 2,
+      "name": "Premium Dice Set",
+      "category": "Board Games",
+      "price": 29.99,
+      "image": "dice-set.jpg",
+      "description": "7-piece polyhedral dice set for RPG games"
+    },
+    {
+      "id": 3,
+      "name": "Pokémon Card Booster Box",
+      "category": "Trading Cards",
+      "price": 129.99,
+      "image": "pokemon-box.jpg",
+      "description": "Sealed booster box with 36 packs"
+    },
+    {
+      "id": 4,
+      "name": "LEGO Titanic Set",
+      "category": "LEGO Sets",
+      "price": 399.99,
+      "image": "lego-titanic.jpg",
+      "description": "9,090 piece replica of the Titanic ship"
+    },
+    {
+      "id": 5,
+      "name": "Vintage Comic Book Collection",
+      "category": "Collectibles",
+      "price": 199.99,
+      "image": "comics.jpg",
+      "description": "Rare vintage comic books from the 1980s"
+    },
+    {
+      "id": 6,
+      "name": "3D Puzzle - Eiffel Tower",
+      "category": "Puzzles",
+      "price": 34.99,
+      "image": "puzzle-eiffel.jpg",
+      "description": "1000 piece 3D puzzle of the Eiffel Tower"
+    },
+    {
+      "id": 7,
+      "name": "Professional Art Supply Kit",
+      "category": "Art Supplies",
+      "price": 89.99,
+      "image": "art-kit.jpg",
+      "description": "Complete set with oils, acrylics, brushes and canvas"
+    },
+    {
+      "id": 8,
+      "name": "Magic: The Gathering Starter Deck",
+      "category": "Trading Cards",
+      "price": 39.99,
+      "image": "mtg-deck.jpg",
+      "description": "Perfect for beginners learning MTG"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Board Games",
+      "description": "Strategy and tabletop games"
+    },
+    {
+      "id": 2,
+      "name": "Trading Cards",
+      "description": "Collectible card games"
+    },
+    {
+      "id": 3,
+      "name": "LEGO Sets",
+      "description": "LEGO building sets and minifigures"
+    },
+    {
+      "id": 4,
+      "name": "Collectibles",
+      "description": "Rare and vintage collectible items"
+    },
+    {
+      "id": 5,
+      "name": "Puzzles",
+      "description": "Jigsaw and 3D puzzles"
+    },
+    {
+      "id": 6,
+      "name": "Art Supplies",
+      "description": "Professional and hobby art materials"
+    }
+  ]
+}
