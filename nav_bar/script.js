@@ -10,7 +10,6 @@ const searchFormMobile = document.getElementById('searchFormMobile');
 const searchInputMobile = document.getElementById('searchInputMobile');
 const suggestionsBoxMobile = document.getElementById('suggestionsMobile');
 
-/* LOAD DATABASE */
 fetch('./mockDatabase.json')
   .then(res => res.json())
   .then(data => {
@@ -21,7 +20,6 @@ fetch('./mockDatabase.json')
     console.error('Failed to load mock database', err);
   });
 
-/* MAIN SEARCH */
 function applySearch(query) {
   const queryLower = query.trim().toLowerCase();
   const products = mockDB.products || [];
@@ -31,7 +29,6 @@ function applySearch(query) {
     return;
   }
 
-  // ✅ ONLY MATCH PRODUCT NAMES (startsWith)
   const results = products.filter(p =>
     p.name.toLowerCase().startsWith(queryLower)
   );
@@ -43,12 +40,10 @@ function applySearch(query) {
   return results;
 }
 
-/* CREATE SUGGESTION ITEM */
 function createSuggestionItem(product, inputElement, suggestionsElement) {
   const item = document.createElement('div');
   item.className = 'suggestion-item';
 
-  // ✅ ONLY PRODUCT NAME (no category)
   item.textContent = product.name;
   item.dataset.productId = product.id;
 
@@ -62,7 +57,6 @@ function createSuggestionItem(product, inputElement, suggestionsElement) {
   return item;
 }
 
-/* SHOW SUGGESTIONS */
 function showSuggestions(matches, suggestionsElement, inputElement) {
   suggestionsElement.innerHTML = '';
 
@@ -80,12 +74,10 @@ function showSuggestions(matches, suggestionsElement, inputElement) {
   suggestionsElement.classList.remove('d-none');
 }
 
-/* HIDE SUGGESTIONS */
 function hideSuggestions(suggestionsElement) {
   suggestionsElement.classList.add('d-none');
 }
 
-/* HANDLE INPUT */
 function handleSearchInput(event, suggestionsElement) {
   const inputValue = event.target.value.trim();
 
@@ -96,7 +88,6 @@ function handleSearchInput(event, suggestionsElement) {
     return;
   }
 
-  // ✅ ONLY STARTS WITH NAME
   const results = (mockDB.products || []).filter(p =>
     p.name.toLowerCase().startsWith(inputValue.toLowerCase())
   );
@@ -105,7 +96,6 @@ function handleSearchInput(event, suggestionsElement) {
   applySearch(inputValue);
 }
 
-/* SETUP EVENTS */
 function setupInputEvents(inputElement, formElement, suggestionsElement) {
   if (!inputElement || !formElement || !suggestionsElement) return;
 
@@ -128,11 +118,9 @@ function setupInputEvents(inputElement, formElement, suggestionsElement) {
   });
 }
 
-/* INIT */
 setupInputEvents(searchInput, searchForm, suggestionsBox);
 setupInputEvents(searchInputMobile, searchFormMobile, suggestionsBoxMobile);
 
-/* CATEGORY CHIPS */
 const categoryChips = document.querySelectorAll('.category-chip');
 
 categoryChips.forEach(chip => {
@@ -153,7 +141,6 @@ categoryChips.forEach(chip => {
   });
 });
 
-/* CART + PROFILE */
 let cartCount = 0;
 
 document.querySelectorAll('.cart-icon').forEach(icon => {
