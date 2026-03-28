@@ -1,9 +1,14 @@
 let mockDB = { products: [] };
 
-const searchInput = document.getElementById('searchInput');
-const searchForm = document.getElementById('searchForm');
-const suggestionsBox = document.getElementById('suggestions');
 const searchFeedback = document.getElementById('searchFeedback');
+
+const searchForm = document.getElementById('searchForm');
+const searchInput = document.getElementById('searchInput');
+const suggestionsBox = document.getElementById('suggestions');
+
+const searchFormMobile = document.getElementById('searchFormMobile');
+const searchInputMobile = document.getElementById('searchInputMobile');
+const suggestionsBoxMobile = document.getElementById('suggestionsMobile');
 
 fetch('./mockDatabase.json')
   .then(res => res.json())
@@ -14,41 +19,6 @@ fetch('./mockDatabase.json')
   .catch(err => {
     console.error('Failed to load mock database', err);
   });
-
-function createSuggestionItem(product) {
-  const item = document.createElement('div');
-  item.className = 'suggestion-item';
-  item.textContent = `${product.name} · ${product.category}`;
-  item.dataset.productId = product.id;
-
-  item.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    searchInput.value = product.name;
-    applySearch(product.name);
-    hideSuggestions();
-  });
-
-  return item;
-}
-
-function showSuggestions(matches) {
-  suggestionsBox.innerHTML = '';
-
-  if (!matches.length) {
-    hideSuggestions();
-    return;
-  }
-
-  matches.slice(0, 6).forEach(product => {
-    suggestionsBox.appendChild(createSuggestionItem(product));
-  });
-
-  suggestionsBox.classList.remove('d-none');
-}
-
-function hideSuggestions() {
-  suggestionsBox.classList.add('d-none');
-}
 
 function applySearch(query) {
   const queryLower = query.trim().toLowerCase();
@@ -61,52 +31,117 @@ function applySearch(query) {
 
   const results = products.filter(p =>
     p.name.toLowerCase().startsWith(queryLower)
+      || p.category.toLowerCase().startsWith(queryLower)
+      || (p.description && p.description.toLowerCase().includes(queryLower))
   );
 
   searchFeedback.textContent = `Search query: "${query}" · ${results.length} result(s) found`;
   console.log('Search query:', query, 'results:', results);
+  return results;
 }
 
-searchInput.addEventListener('input', function() {
-  const query = this.value.trim();
+function createSuggestionItem(product, inputElement, suggestionsElement) {
+  const item = document.createElement('div');
+  item.className = 'suggestion-item';
+  item.textContent = `${product.name} · ${product.category}`;
+  item.dataset.productId = product.id;
 
-  if (query === '') {
-    hideSuggestions();
+  item.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    inputElement.value = product.name;
+    applySearch(product.name);
+    hideSuggestions(suggestionsElement);
+  });
+
+  return item;
+}
+
+function showSuggestions(matches, suggestionsElement, inputElement) {
+  suggestionsElement.innerHTML = '';
+
+  if (!matches.length) {
+    hideSuggestions(suggestionsElement);
+    return;
+  }
+
+  matches.slice(0, 6).forEach(product => {
+    suggestionsElement.appendChild(createSuggestionItem(product, inputElement, suggestionsElement));
+  });
+
+  suggestionsElement.classList.remove('d-none');
+}
+
+function hideSuggestions(suggestionsElement) {
+  suggestionsElement.classList.add('d-none');
+}
+
+function handleSearchInput(event, suggestionsElement) {
+  const inputValue = event.target.value.trim();
+
+  if (inputValue === '') {
+    hideSuggestions(suggestionsElement);
     searchFeedback.textContent = 'Search products by name, category, or description.';
     return;
   }
 
-  const products = (mockDB.products || []).filter(p =>
-    p.name.toLowerCase().startsWith(query.toLowerCase())
+  const results = (mockDB.products || []).filter(p =>
+    p.name.toLowerCase().startsWith(inputValue.toLowerCase())
+      || p.category.toLowerCase().startsWith(inputValue.toLowerCase())
+      || (p.description && p.description.toLowerCase().includes(inputValue.toLowerCase()))
   );
 
-  showSuggestions(products);
-  applySearch(query);
-});
+  showSuggestions(results, suggestionsElement, event.target);
+  applySearch(inputValue);
+}
 
-searchInput.addEventListener('focus', function() {
-  if (this.value === '') {
-    this.style.backgroundColor = '#FFFFFF';
-  }
-});
+function setupInputEvents(inputElement, formElement, suggestionsElement) {
+  if (!inputElement || !formElement || !suggestionsElement) return;
 
-searchInput.addEventListener('blur', function() {
-  if (this.value === '') {
-    this.style.backgroundColor = '#F5F5F5';
-  }
-  setTimeout(() => hideSuggestions(), 100);
-});
+  inputElement.addEventListener('input', event => handleSearchInput(event, suggestionsElement));
 
-searchForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-  const searchQuery = searchInput.value.trim();
+  inputElement.addEventListener('focus', function() {
+    if (this.value === '') {
+      this.style.backgroundColor = '#FFFFFF';
+    }
+  });
 
-  if (!searchQuery) {
-    return;
-  }
+  inputElement.addEventListener('blur', function() {
+    if (this.value === '') {
+      this.style.backgroundColor = '#F5F5F5';
+    }
+    setTimeout(() => hideSuggestions(suggestionsElement), 120);
+  });
 
-  applySearch(searchQuery);
-  hideSuggestions();
+  formElement.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const searchQuery = inputElement.value.trim();
+
+    if (!searchQuery) {
+      return;
+    }
+
+    applySearch(searchQuery);
+    hideSuggestions(suggestionsElement);
+  });
+}
+
+setupInputEvents(searchInput, searchForm, suggestionsBox);
+setupInputEvents(searchInputMobile, searchFormMobile, suggestionsBoxMobile);
+
+const categoryChips = document.querySelectorAll('.category-chip');
+categoryChips.forEach(chip => {
+  chip.addEventListener('click', function() {
+    const query = this.textContent.trim();
+    if (searchInputMobile) {
+      searchInputMobile.value = query;
+      applySearch(query);
+    }
+    if (searchInput) {
+      searchInput.value = query;
+    }
+    hideSuggestions(suggestionsBox);
+    hideSuggestions(suggestionsBoxMobile);
+  });
 });
 
 let cartCount = 0;
