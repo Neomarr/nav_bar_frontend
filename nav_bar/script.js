@@ -10,6 +10,7 @@ const searchFormMobile = document.getElementById('searchFormMobile');
 const searchInputMobile = document.getElementById('searchInputMobile');
 const suggestionsBoxMobile = document.getElementById('suggestionsMobile');
 
+/* LOAD DATABASE */
 fetch('./mockDatabase.json')
   .then(res => res.json())
   .then(data => {
@@ -20,6 +21,7 @@ fetch('./mockDatabase.json')
     console.error('Failed to load mock database', err);
   });
 
+/* MAIN SEARCH */
 function applySearch(query) {
   const queryLower = query.trim().toLowerCase();
   const products = mockDB.products || [];
@@ -29,24 +31,28 @@ function applySearch(query) {
     return;
   }
 
+  // ✅ ONLY MATCH PRODUCT NAMES (startsWith)
   const results = products.filter(p =>
     p.name.toLowerCase().startsWith(queryLower)
-      || p.category.toLowerCase().startsWith(queryLower)
-      || (p.description && p.description.toLowerCase().includes(queryLower))
   );
 
-  searchFeedback.textContent = `Search query: "${query}" · ${results.length} result(s) found`;
+  searchFeedback.textContent =
+    `Search query: "${query}" · ${results.length} result(s) found`;
+
   console.log('Search query:', query, 'results:', results);
   return results;
 }
 
+/* CREATE SUGGESTION ITEM */
 function createSuggestionItem(product, inputElement, suggestionsElement) {
   const item = document.createElement('div');
   item.className = 'suggestion-item';
-  item.textContent = `${product.name} · ${product.category}`;
+
+  // ✅ ONLY PRODUCT NAME (no category)
+  item.textContent = product.name;
   item.dataset.productId = product.id;
 
-  item.addEventListener('mousedown', function(e) {
+  item.addEventListener('mousedown', function (e) {
     e.preventDefault();
     inputElement.value = product.name;
     applySearch(product.name);
@@ -56,6 +62,7 @@ function createSuggestionItem(product, inputElement, suggestionsElement) {
   return item;
 }
 
+/* SHOW SUGGESTIONS */
 function showSuggestions(matches, suggestionsElement, inputElement) {
   suggestionsElement.innerHTML = '';
 
@@ -65,95 +72,102 @@ function showSuggestions(matches, suggestionsElement, inputElement) {
   }
 
   matches.slice(0, 6).forEach(product => {
-    suggestionsElement.appendChild(createSuggestionItem(product, inputElement, suggestionsElement));
+    suggestionsElement.appendChild(
+      createSuggestionItem(product, inputElement, suggestionsElement)
+    );
   });
 
   suggestionsElement.classList.remove('d-none');
 }
 
+/* HIDE SUGGESTIONS */
 function hideSuggestions(suggestionsElement) {
   suggestionsElement.classList.add('d-none');
 }
 
+/* HANDLE INPUT */
 function handleSearchInput(event, suggestionsElement) {
   const inputValue = event.target.value.trim();
 
   if (inputValue === '') {
     hideSuggestions(suggestionsElement);
-    searchFeedback.textContent = 'Search products by name, category, or description.';
+    searchFeedback.textContent =
+      'Search products by name.';
     return;
   }
 
+  // ✅ ONLY STARTS WITH NAME
   const results = (mockDB.products || []).filter(p =>
     p.name.toLowerCase().startsWith(inputValue.toLowerCase())
-      || p.category.toLowerCase().startsWith(inputValue.toLowerCase())
-      || (p.description && p.description.toLowerCase().includes(inputValue.toLowerCase()))
   );
 
   showSuggestions(results, suggestionsElement, event.target);
   applySearch(inputValue);
 }
 
+/* SETUP EVENTS */
 function setupInputEvents(inputElement, formElement, suggestionsElement) {
   if (!inputElement || !formElement || !suggestionsElement) return;
 
-  inputElement.addEventListener('input', event => handleSearchInput(event, suggestionsElement));
+  inputElement.addEventListener('input', event =>
+    handleSearchInput(event, suggestionsElement)
+  );
 
-  inputElement.addEventListener('focus', function() {
-    if (this.value === '') {
-      this.style.backgroundColor = '#FFFFFF';
-    }
-  });
-
-  inputElement.addEventListener('blur', function() {
-    if (this.value === '') {
-      this.style.backgroundColor = '#F5F5F5';
-    }
+  inputElement.addEventListener('blur', function () {
     setTimeout(() => hideSuggestions(suggestionsElement), 120);
   });
 
-  formElement.addEventListener('submit', function(e) {
+  formElement.addEventListener('submit', function (e) {
     e.preventDefault();
-    const searchQuery = inputElement.value.trim();
 
-    if (!searchQuery) {
-      return;
-    }
+    const searchQuery = inputElement.value.trim();
+    if (!searchQuery) return;
 
     applySearch(searchQuery);
     hideSuggestions(suggestionsElement);
   });
 }
 
+/* INIT */
 setupInputEvents(searchInput, searchForm, suggestionsBox);
 setupInputEvents(searchInputMobile, searchFormMobile, suggestionsBoxMobile);
 
+/* CATEGORY CHIPS */
 const categoryChips = document.querySelectorAll('.category-chip');
+
 categoryChips.forEach(chip => {
-  chip.addEventListener('click', function() {
-    const query = this.textContent.trim();
+  chip.addEventListener('click', function () {
+    const query = this.textContent.replace(/[^\w\s]/gi, '').trim();
+
     if (searchInputMobile) {
       searchInputMobile.value = query;
       applySearch(query);
     }
+
     if (searchInput) {
       searchInput.value = query;
     }
+
     hideSuggestions(suggestionsBox);
     hideSuggestions(suggestionsBoxMobile);
   });
 });
 
+/* CART + PROFILE */
 let cartCount = 0;
 
-document.querySelector('.cart-icon').addEventListener('click', function(e) {
-  e.preventDefault();
-  console.log('Cart clicked. Items:', cartCount);
+document.querySelectorAll('.cart-icon').forEach(icon => {
+  icon.addEventListener('click', function (e) {
+    e.preventDefault();
+    console.log('Cart clicked. Items:', cartCount);
+  });
 });
 
-document.querySelector('.profile-icon').addEventListener('click', function(e) {
-  e.preventDefault();
-  console.log('Profile clicked');
+document.querySelectorAll('.profile-icon').forEach(icon => {
+  icon.addEventListener('click', function (e) {
+    e.preventDefault();
+    console.log('Profile clicked');
+  });
 });
 
 console.log('Arcadia Hobby House navbar loaded successfully!');
